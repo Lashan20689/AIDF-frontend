@@ -10,6 +10,8 @@ import CreateHotelPage from './pages/create-hotel.page';
 import AccountPage from './pages/account-page';
 import ProtectedLayout from './layouts/protected.layout';
 import AdminProtectedLayout from './layouts/admin-protected-layout';
+import PaymentPage from './pages/payment.page';
+import CompletePage from './pages/complete.page';
 
 import SignInPage from './pages/sign-in.page';
 import SignUpPage from './pages/sign-up.page';
@@ -42,6 +44,8 @@ createRoot(document.getElementById('root')).render(
                 <Route path="/hotels/:id" element={<HotelPage />} />
                 <Route element={<ProtectedLayout />}>
                   <Route path="/account" element={<AccountPage />} />
+                  <Route path="/booking/payment" element={<PaymentPage />} />
+                  <Route path="/booking/complete" element={<CompletePage />} />
                   <Route element={<AdminProtectedLayout />}>
                     <Route path="/hotels/create" element={<CreateHotelPage />} />
                   </Route>

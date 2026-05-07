@@ -8,6 +8,8 @@ import { Label } from "@/components/ui/label";
 import { CalendarIcon, Loader2 } from "lucide-react";
 import { useCreateBookingMutation } from "@/lib/api";
 import { format, differenceInDays } from "date-fns";
+import { useNavigate } from "react-router"; // ADD THIS IMPORT
+import { toast } from "sonner"; // ADD THIS IMPORT
 
 const generateRoomNumber = () => Math.floor(Math.random() * 900) + 100;
 
@@ -18,6 +20,7 @@ export default function BookingForm({ hotel, isOpen, onClose }) {
     const [bookingSuccess, setBookingSuccess] = useState(false);
 
     const [createBooking, { isLoading }] = useCreateBookingMutation();
+    const navigate = useNavigate(); // ADD THIS
 
     const nights = checkIn && checkOut ? differenceInDays(checkOut, checkIn) : 0;
     const totalCost = nights * (hotel?.price || 0);
@@ -28,7 +31,7 @@ export default function BookingForm({ hotel, isOpen, onClose }) {
         const roomNumber = generateRoomNumber();
 
         try {
-            await createBooking({
+            const booking = await createBooking({
                 hotelId: hotel._id,
                 checkIn: checkIn.toISOString(),
                 checkOut: checkOut.toISOString(),
@@ -37,8 +40,17 @@ export default function BookingForm({ hotel, isOpen, onClose }) {
 
             setAssignedRoom(roomNumber);
             setBookingSuccess(true);
+            
+            // ADD THIS - Navigate to payment after a short delay
+            setTimeout(() => {
+                navigate(`/booking/payment?bookingId=${booking._id}`);
+                toast.success("Booking created! Proceed to payment.");
+                onClose(); // Close the dialog
+            }, 1500); // Shows success message briefly before navigating
+            
         } catch (error) {
             console.error(error);
+            toast.error("Booking failed. Please try again."); // ADD THIS
         }
     };
 
@@ -64,7 +76,7 @@ export default function BookingForm({ hotel, isOpen, onClose }) {
                     <div className="flex flex-col items-center gap-4 py-6">
                         <div className="text-6xl">✅</div>
                         <p className="text-center text-muted-foreground">
-                            Your booking has been confirmed! We look forward to welcoming you.
+                            Your booking has been confirmed! Redirecting to payment...
                         </p>
                         <div className="w-full bg-muted rounded-lg p-4 space-y-2">
                             <div className="flex justify-between">
@@ -88,11 +100,12 @@ export default function BookingForm({ hotel, isOpen, onClose }) {
                                 <span className="font-bold text-primary">${totalCost}</span>
                             </div>
                         </div>
-                        <Button className="w-full" onClick={handleClose}>Close</Button>
+                        <Button className="w-full" onClick={handleClose}>
+                            Close
+                        </Button>
                     </div>
                 ) : (
                     <div className="space-y-6 py-4">
-
                         {/* Check In Date */}
                         <div className="space-y-2">
                             <Label>Check In Date</Label>
@@ -170,7 +183,7 @@ export default function BookingForm({ hotel, isOpen, onClose }) {
                             {isLoading ? (
                                 <>
                                     <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                                    Confirming...
+                                    Creating Booking...
                                 </>
                             ) : (
                                 `Confirm Booking — $${totalCost}`
