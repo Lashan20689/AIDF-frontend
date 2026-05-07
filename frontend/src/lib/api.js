@@ -51,13 +51,13 @@ export const api = createApi({
         }),
         createBooking: builder.mutation({
             query: (booking) => ({
-                url: "bookings",
+                url: "booking",
                 method: "POST",
                 body: booking,
             }),
         }),
         getBookingById: builder.query({
-            query: (id) => `bookings/${id}`,
+            query: (id) => `booking/${id}`,
           }),
 
         createCheckoutSession: builder.mutation({
